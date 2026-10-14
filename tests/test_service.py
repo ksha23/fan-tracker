@@ -21,10 +21,16 @@ class FakeAqara:
 class FakeHA:
     def __init__(self):
         self.states = {"input_boolean.fan_tracking": "on", "fan.dreo": "on"}
+        self.changed = {}
         self.numbers, self.published, self.calls = [], {}, []
 
     def state(self, eid):
-        return {"state": self.states[eid]} if eid in self.states else None
+        if eid not in self.states:
+            return None
+        st = {"state": self.states[eid]}
+        if eid in self.changed:
+            st["last_changed"] = self.changed[eid]
+        return st
 
     def set_number(self, eid, v):
         self.numbers.append((eid, v))
@@ -87,6 +93,20 @@ class ServiceTest(unittest.TestCase):
         self.ha.states["input_boolean.fan_tracking"] = "off"
         self.svc.step(20.0)
         self.assertEqual(self.aq.writes[-1], {"4.22.85": 0})
+
+    def test_quick_off_on_releases_the_target(self):
+        self.ha.changed["input_boolean.fan_tracking"] = "t1"
+        self.feed(10.0, [(0, 300)])
+        self.assertIsNotNone(self.svc.tracker.target_id)
+        self.ha.changed["input_boolean.fan_tracking"] = "t2"  # off and on between two checks
+        self.svc._refresh_flags(20.0)
+        self.assertIsNone(self.svc.tracker.target_id)
+
+    def test_unchanged_switch_keeps_the_target(self):
+        self.ha.changed["input_boolean.fan_tracking"] = "t1"
+        self.feed(10.0, [(0, 300)])
+        self.svc._refresh_flags(20.0)
+        self.assertIsNotNone(self.svc.tracker.target_id)
 
 
 class SignTest(unittest.TestCase):

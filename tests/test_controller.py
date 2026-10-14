@@ -68,7 +68,6 @@ class ControllerTest(unittest.TestCase):
         self.assertIsNone(t.update(10.0, [Target("1", x_at(2.4), y)]))
         self.assertEqual(t.update(15.0, [Target("1", x_at(7.0), y)]).pan, 5)
 
-
     def test_ignores_target_at_the_fan(self):
         t = Tracker(FanPose(-45, 154, heading_deg=0), TrackerSettings(smoothing=1.0))
         cmd = t.update(0.0, [Target("5", -45, 154), Target("8", -45, 400)])
@@ -92,6 +91,20 @@ class ControllerTest(unittest.TestCase):
         t.update(2.0, [Target("p", 40, 300), Target("q", -200, 200)])
         t.update(3.0, [Target("p", 40, 300), Target("q", -150, 230)])  # q moves now
         self.assertEqual(t.target_id, "p")
+
+    def test_release_lets_a_new_mover_take_over(self):
+        t = tracker()
+        t.update(0.0, [Target("g", 0, 300)])
+        t.update(1.0, [Target("g", 30, 300)])               # a reflection twitches once
+        t.update(2.0, [Target("g", 30, 300), Target("p", -250, 250)])
+        t.update(3.0, [Target("g", 30, 300), Target("p", -200, 280)])
+        self.assertEqual(t.target_id, "g")                  # held, as designed
+        t.release_target()
+        t.update(4.0, [Target("g", 30, 300), Target("p", -200, 280)])
+        self.assertEqual(t.target_id, "g")                  # nearest while nobody has moved
+        t.update(5.0, [Target("g", 30, 300), Target("p", -150, 300)])
+        self.assertEqual(t.target_id, "p")
+
 
 class ParseTest(unittest.TestCase):
     def test_parses_json_string_and_filters_inactive(self):

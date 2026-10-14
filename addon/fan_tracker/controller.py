@@ -132,3 +132,12 @@ class Tracker:
     def forget_command(self) -> None:
         """Make the next update re-send (e.g. after the fan was switched on)."""
         self.last_command, self.last_command_time = None, -math.inf
+
+    def release_target(self) -> None:
+        """Drop the followed target and the motion history, so the next mover is
+        picked fresh (e.g. after tracking is switched off and on again). A target
+        that moved even once is otherwise kept for good, and a radar reflection
+        that twitched can hold the fan."""
+        self.target_id, self.smoothed = None, None
+        self.motion.clear()
+        self.forget_command()

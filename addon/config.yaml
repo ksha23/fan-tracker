@@ -1,5 +1,5 @@
 name: Fan Tracker
-version: "0.4.0"
+version: "0.4.1"
 slug: fan_tracker
 description: Point a motorized smart fan at the person an Aqara FP2 presence sensor is tracking
 arch:

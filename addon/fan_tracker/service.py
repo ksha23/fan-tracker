@@ -48,6 +48,7 @@ class Service:
         self.ha = ha or HomeAssistant(cfg.ha_url, cfg.ha_token)
         self.tracker = build_tracker(cfg)
         self.enabled = False
+        self.enable_changed = None
         self.fan_on = False
         self.last_flags_check = 0.0
         self.last_reporting_write = -math.inf
@@ -63,19 +64,23 @@ class Service:
         self.last_flags_check = now
         st = self.ha.state(self.cfg.enable_entity)
         enabled = bool(st and st["state"] == "on")
+        changed = st.get("last_changed") if st else None
         fan = self.ha.state(self.cfg.fan_entity) if self.cfg.fan_entity else None
         fan_on = bool(fan and fan["state"] == "on")
-        if enabled and not self.enabled:
+        # A quick off/on can fall between two checks, so a new last_changed
+        # while on also counts as switching tracking on again.
+        toggled = changed is not None and changed != self.enable_changed
+        if enabled and (not self.enabled or toggled):
             log.info("tracking enabled")
             self.last_reporting_write = -math.inf
-            self.tracker.forget_command()
+            self.tracker.release_target()
             self._stop_oscillation()
         if not enabled and self.enabled:
             log.info("tracking disabled")
             self._set_reporting(False)
         if fan_on and not self.fan_on:
             self.tracker.forget_command()
-        self.enabled, self.fan_on = enabled, fan_on
+        self.enabled, self.fan_on, self.enable_changed = enabled, fan_on, changed
 
     def _stop_oscillation(self) -> None:
         """Aiming fights oscillation, so switch every oscillation axis off."""

@@ -124,7 +124,8 @@ Assistant switch works.
 
 - It follows one person. If several targets are visible it keeps the one it
   is following. A target that has never moved (a radar ghost) gives way to one
-  that moves.
+  that moves. A reflection that twitched once can still hold the fan, so turning
+  tracking off and on again drops the current target and picks whoever moves next.
 - It moves only when the aim has changed by at least 6 degrees, at most once
   every 2 s, in the fan's 5 degree steps, with hysteresis so it does not flip
   between two steps.
