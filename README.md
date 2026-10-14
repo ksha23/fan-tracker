@@ -1,5 +1,10 @@
 # Fan Tracker
 
+![A fan in the corner of a room turns to follow a person walking around, using the FP2's position readings](docs/demo.gif)
+
+*Illustration, not a recording. The fan's moves come from the add-on's real controller fed with
+simulated FP2 readings (`tools/make_demo_gif.py`).*
+
 Make the smart fan you already own point at you as you move around the room,
 using the presence sensor you already own, through Home Assistant.
 
