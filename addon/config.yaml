@@ -1,0 +1,77 @@
+name: Fan Tracker
+version: "0.4.0"
+slug: fan_tracker
+description: Point a motorized smart fan at the person an Aqara FP2 presence sensor is tracking
+arch:
+  - amd64
+  - aarch64
+  - armv7
+url: https://github.com/ksha23/fan-tracker
+init: false
+startup: application
+boot: auto
+homeassistant_api: true
+map:
+  - addon_config:rw
+options:
+  aqara_mode: app
+  aqara_account: ""
+  aqara_password: ""
+  aqara_app_id: ""
+  aqara_key_id: ""
+  aqara_app_key: ""
+  aqara_region: US
+  fp2_did: ""
+  enable_entity: input_boolean.fan_tracking
+  fan_entity: fan.air_circulator
+  pan_entity: number.air_circulator_horizontal_angle
+  tilt_entity: number.air_circulator_vertical_angle
+  fan_x: 0.0
+  fan_y: 0.0
+  fan_heading_deg: 0.0
+  fan_mirror: 1
+  fan_height_m: 0.9
+  target_height_m: 1.1
+  tilt_mode: distance
+  fixed_tilt_deg: 10.0
+  tilt_offset_deg: 0.0
+  pan_deadband_deg: 6.0
+  tilt_deadband_deg: 5.0
+  min_command_interval_s: 2.0
+  smoothing: 0.5
+  poll_interval_s: 1.0
+  fan_exclusion_radius: 40.0
+  pan_min: -75.0
+  pan_max: 75.0
+  reporting_refresh_s: 60.0
+schema:
+  aqara_mode: list(app|open)
+  aqara_account: str?
+  aqara_password: password?
+  aqara_app_id: str?
+  aqara_key_id: str?
+  aqara_app_key: password?
+  aqara_region: list(US|EU|CN|KR|RU|AU|SG)
+  fp2_did: str
+  enable_entity: str
+  fan_entity: str
+  pan_entity: str
+  tilt_entity: str?
+  fan_x: float
+  fan_y: float
+  fan_heading_deg: float
+  fan_mirror: int(-1,1)
+  fan_height_m: float
+  target_height_m: float
+  tilt_mode: list(distance|fixed)
+  fixed_tilt_deg: float
+  tilt_offset_deg: float
+  pan_deadband_deg: float
+  tilt_deadband_deg: float
+  min_command_interval_s: float
+  smoothing: float(0,1)
+  poll_interval_s: float
+  fan_exclusion_radius: float
+  pan_min: float
+  pan_max: float
+  reporting_refresh_s: float
